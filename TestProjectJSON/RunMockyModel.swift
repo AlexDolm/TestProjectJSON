@@ -7,8 +7,12 @@
 
 import Foundation
 
-struct RunMocky: Decodable{
+class RunMocky: Decodable{
     var company: Company
+    
+    init(company: Company) {
+        self.company = company
+    }
 }
 
 struct Company: Decodable{

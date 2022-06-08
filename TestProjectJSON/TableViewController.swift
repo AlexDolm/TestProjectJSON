@@ -11,6 +11,8 @@ class TableViewController: UIViewController {
     
     @IBOutlet var indicator: UIActivityIndicatorView!
     var runMocky: RunMocky? = nil
+    var dataLoad = DataLoad()
+    var cashRunMocky = NSCache<NSString, RunMocky>()
     
     override func viewDidLoad() {
         
@@ -19,41 +21,33 @@ class TableViewController: UIViewController {
         
         indicator.startAnimating()
         indicator.hidesWhenStopped = true
-        JSONLoad()
         
-    }
-    
-    
-    
+        let URlRunMocky = URL(string: "https://run.mocky.io/v3/1d1cb4ec-73db-4762-8c4b-0b8aa3cecd4cu")!
 
-    func JSONLoad(){
-        guard let URlRunMocky = URL(string: "https://run.mocky.io/v3/1d1cb4ec-73db-4762-8c4b-0b8aa3cecd4c") else
-        {
-            return
-        }
-        URLSession.shared.dataTask(with: URlRunMocky) { data, response, error in
-            guard let data = data else {return}
-            do {
-                self.runMocky = try JSONDecoder().decode(RunMocky.self, from: data)
-//                var g = runMocky.company.employees.sorted { $0.name < $1.name }
+        dataLoad.JSONLoad2(URlRunMocky:URlRunMocky){ result in
+            self.runMocky = result
+            
+            if self.runMocky != nil{
+                DispatchQueue.main.async { [self] in
+                    title = self.runMocky?.company.name
+                    indicator.stopAnimating()
+                }
+            
+            }
+            else{
                 
                 DispatchQueue.main.async {
-                    self.TableFront()
-                    self.indicator.stopAnimating()
-                }
-            } catch  {
-                DispatchQueue.main.async {
                     self.alertError(title: "Ошибка", message: "Сервер временно недоступен. Проверьте подключение к сети.")
-                    self.indicator.stopAnimating()
+                                    self.indicator.stopAnimating()
                 }
             }
-        }.resume()
+        }
+
+        
+
     }
     
-    func TableFront(){
-        title = runMocky?.company.name
- 
-    }
+
     
     
     
