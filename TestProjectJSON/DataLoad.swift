@@ -6,9 +6,15 @@
 //
 import UIKit
 class DataLoad{
+    var cashRunMocky = NSCache<NSString, RunMocky>()
+    
     
     func JSONLoad2(URlRunMocky: URL, completion: @escaping (RunMocky?) -> Void)
     {
+        if let runMocky = cashRunMocky.object(forKey: URlRunMocky.absoluteString as NSString) {
+            completion(runMocky)
+        }
+        else{
         var runMocky: RunMocky?
         
         URLSession.shared.dataTask(with: URlRunMocky) { data, response, error in
@@ -17,13 +23,16 @@ class DataLoad{
             }
             do {
                 runMocky = try JSONDecoder().decode(RunMocky.self, from: data)
+                self.cashRunMocky.setObject(runMocky!, forKey: URlRunMocky.absoluteString as NSString)
+                
             } catch  {
                 runMocky = nil
 
             }
             completion(runMocky)
-        }.resume()
-        
+            }.resume()
+            
+        }
             
     }
     
